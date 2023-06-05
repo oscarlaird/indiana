@@ -1,33 +1,29 @@
 <script>
     // import realtime database functions from firebase
-    import { set } from "firebase/database";
-    import {db} from "./firebase.js";
-    // Simple table showing all the sources
-    const example_sources = {
-        "https://www.youtube.com/watch?v=9bZkp7q19f0": {title: "PSY - GANGNAM STYLE(강남스타일) M/V"},
-    }
-    export let sources = example_sources;
-    // a function to create a new source in the firestore
+    import { set, ref, remove } from "firebase/database";
+    import { db, sources } from "./firebase.js";
 
-    export const addSource = async (url) => {
-        const ref = db.ref("sources/" + url);
-        await ref.set({})
+    const addSource = async (url) => {
+        // if the url is not null add it to the sources
+        if (url) {
+            const source_ref = ref(db, "sources/" + encodeURIComponent(url))
+            set(source_ref, {enabled: true});
+        }
     }
 
-    export const deleteSource = async (url) => {
-        const ref = db.ref("sources/" + url);
-        await ref.remove();
+    const deleteSource = async (url) => {
+        const source_ref = ref(db, "sources/" + encodeURIComponent(url))
+        remove(source_ref);
     }
-    import { onMount} from "svelte";
-    console.log('here')
-    onMount(async () => {
-        prompt('onMount')
-    });
+    async function setEnabled(url, value) {
+        const source_ref = ref(db, "sources/" + encodeURIComponent(url) + "/enabled")
+        set(source_ref, value);
+    }
 
 </script>
 
 <!-- create a button to add a new source specifying the url thru input -->
-<!-- <button on:click={() => addSource(prompt("Enter a URL..."))}>Add Source</button> -->
+<button on:click={() => addSource(prompt("Enter a URL..."))}>Add Source</button>
 
 <!-- create a table with all the sources -->
 <table class="table table-striped">
@@ -39,12 +35,14 @@
         </tr>
     </thead>
     <tbody>
-        {#each Object.entries(sources) as [url, source]}
+        {#each Object.entries($sources) as pair}
             <tr>
-                <td>url</td>
-                <td>{source.title}</td>
+                <!-- x mark to remove a source -->
+                <td><button on:click={() => deleteSource(pair[0])}>✕</button></td>
+                <td>{pair[0]}</td>
+                <td>{pair[1].title}</td>
                 <!-- a checkbox bound to the enabled attribute -->
-                 <td><input type="checkbox" bind:checked={source.enabled} /></td>
+                 <td><input type="checkbox" on:click={(event) => setEnabled(pair[0], event.target.checked)} bind:checked={pair[1].enabled}></td>
 
             </tr>
         {/each}
@@ -60,4 +58,4 @@
     }
 </style>
 
-{JSON.stringify(sources)}
+{JSON.stringify($sources)}
