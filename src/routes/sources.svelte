@@ -29,6 +29,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th></th>
             <th>URL</th>
             <th>Title</th>
             <th>Enabled</th>

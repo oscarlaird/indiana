@@ -1,0 +1,40 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "sources": {
+      "$url": {
+        "enabled": {
+          ".validate": "newData.val() == null || newData.isBoolean()"
+        },
+        "title": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().length > 0)"
+        },
+        "summary": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().length > 0)"
+        },
+        "published": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/))"
+        },
+        "accessed": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/))"
+        },
+        "type": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().length > 0)"
+        },
+        "full_content": {
+          ".validate": "newData.val() == null || (newData.isString() && newData.val().length > 0)"
+        },
+        "chunks": {
+          "$chunk": {
+            "content": {
+              ".validate": "newData.val() == null || (newData.isString() && newData.val().length > 0)"
+            },
+            "embedding": {
+            }
+          }
+        }
+      }
+    }
+  }
+}
