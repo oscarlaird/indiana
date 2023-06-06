@@ -4,11 +4,15 @@
   },
   "functions": [
     {
+      "runtime": "python311",
       "source": "functions",
       "codebase": "default",
       "ignore": [
-        "node_modules",
-        ".git",
+	"pf-6HtyV0Cy-py3.11",
+	"venv",
+	".git",
+	"poetry.lock",
+	"pyproject.toml",
         "firebase-debug.log",
         "firebase-debug.*.log"
       ]

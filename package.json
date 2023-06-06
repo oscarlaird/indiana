@@ -17,6 +17,7 @@
 	"type": "module",
 	"dependencies": {
 		"firebase": "^9.22.1",
+		"mathjs": "^11.8.0",
 		"openai": "^3.2.1"
 	}
 }
