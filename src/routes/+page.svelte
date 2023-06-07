@@ -6,6 +6,5 @@
 
 <QA />
 <hr>
-Sources:
 <br>
 <Sources />

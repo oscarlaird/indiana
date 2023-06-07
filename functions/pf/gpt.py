@@ -13,9 +13,11 @@ import os
 
 import logging
 
-def authenticate(openai_org_id, openai_api_key):
-    openai.organization = openai_org_id
-    openai.api_key = openai_api_key
+from . import secrets
+
+# authenticate with the OpenAI API
+openai.organization = secrets.openai.org_id
+openai.api_key = secrets.openai.api_key
 
 def embed_texts(texts) -> List[List[float]]:
     """Embed a list of texts using the OpenAI API"""

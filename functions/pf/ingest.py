@@ -12,10 +12,16 @@ from typing import List
 from newspaper import Article
 from datetime import datetime
 
+
+class ParseError(Exception):
+    pass
+
+
 def get_type(url: str):
     if 'youtube' in url:
         return 'youtube'
-    elif any(site in url for site in ['nytimes', 'washingtonpost', 'wsj', 'bloomberg', 'reuters', 'apnews']):
+    elif any(site in url for site in
+             ['nationalreview', 'nytimes', 'washingtonpost', 'wsj', 'bloomberg', 'reuters', 'apnews']):
         return 'article'
     # social media
     elif any(site in url for site in ['twitter', 'facebook', 'linkedin', 'reddit']):
@@ -31,7 +37,7 @@ def parse_src(url: str):
     elif type == 'article':
         return parse_article(url)
     else:
-        raise ValueError('No ingestion method for source type ', type)
+        raise ParseError('No ingestion method for source type ', type)
 
 
 def parse_article(url):
@@ -45,9 +51,12 @@ def parse_article(url):
     article.parse()
 
     metadata['title'] = article.title
-    metadata['published'] = None if not article.publish_date else datetime.strftime(article.publish_date, '%Y-%m-%d')  # format to YYYY-MM-DD
+    metadata['published'] = None if not article.publish_date else datetime.strftime(article.publish_date,
+                                                                                    '%Y-%m-%d')  # format to YYYY-MM-DD
     metadata['fullcontent'] = article.text
-    assert metadata['fullcontent'], 'Could not fetch article content'
+    metadata['favicon'] = article.meta_favicon
+    if not metadata['fullcontent']:
+        raise ParseError('Could not extract content from article at ', url)
 
     return metadata
 
@@ -106,6 +115,7 @@ def chunk(content, max_chars=1000):
         new_chunk, content = content[:last_period + 1], content[last_period + 1:]
         chunks.append(new_chunk)
     return chunks
+
 
 '''
 # take a youtube video and return a transcript of it with timestamps

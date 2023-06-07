@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, get, onValue, off } from "firebase/database";
+import { getFunctions } from "firebase/functions";
 import { readable} from "svelte/store";
 
 // import { getAuth } from 'firebase/auth';
@@ -22,6 +23,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
+export const functions = getFunctions(app);
 
 export const sources = readable({}, function start(set) {
     const sources_ref = ref(db, "sources");
@@ -31,7 +33,7 @@ export const sources = readable({}, function start(set) {
             // ...data[key],
             // id: key,
         // }));
-        const sources = snapshot.val();
+        const sources = snapshot.val() ? snapshot.val() : {};
         set(sources);
     });
 

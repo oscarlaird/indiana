@@ -1,17 +1,23 @@
 <script>
     // import realtime database functions from firebase
-    import { set, ref, remove, push } from "firebase/database";
-    import { db, sources } from "./firebase.js";
-    import { top_k } from "./pinecone.js";
+    import {push, ref, remove, set} from "firebase/database";
+    import {db, sources} from "./firebase.js";
+    import Source from "./source.svelte";
+
+    let new_url;
 
     // example of top_k
-    console.log(top_k([[1, 2],[3,4]],[2,-10], 1));
 
     const addSource = async (url) => {
         // if the url is not null add it to the sources
         if (url) {
             const sources_ref = ref(db, "sources/");
-            push(sources_ref, {"url": url, "status": "new"}).then(r => console.log('added source ' + url)).catch(e => console.log(e));
+            let unixTimestamp = Math.floor(Date.now() / 1000);
+            push(sources_ref, {
+                "url": url,
+                "status": "new",
+                "unix_time_added": unixTimestamp
+            }).then(r => console.log('added source ' + url)).catch(e => console.log(e));
         }
     }
 
@@ -19,48 +25,55 @@
         const source_ref = ref(db, "sources/" + srcId);
         remove(source_ref);
     }
+
     async function setEnabled(srcId, value) {
         const source_ref = ref(db, "sources/" + srcId + "/enabled")
         set(source_ref, value);
     }
+
     $: console.log('sources', $sources);
 
 </script>
 
+<div class="sources-header">
+<div class="sources-title">Sources</div>
 <!-- create a button to add a new source specifying the url thru input -->
-<button on:click={() => addSource(prompt("Enter a URL..."))}>Add Source</button>
-
-<!-- create a table with all the sources -->
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th></th>
-            <th>URL</th>
-            <th>Title</th>
-            <th>Enabled</th>
-        </tr>
-    </thead>
-    <tbody>
-        {#each Object.entries($sources) as pair (pair[0])} <!-- iterate over the sources -->
-            <tr>
-                <!-- x mark to remove a source -->
-                <td><button on:click={() => deleteSource(pair[0])}>✕</button></td>
-                <td>{pair[1].url}</td>
-                <td>{pair[1].title}</td>
-                <!-- a checkbox bound to the enabled attribute -->
-                 <td><input type="checkbox" on:click={(event) => setEnabled(pair[0], event.target.checked)} bind:checked={pair[1].enabled}></td>
-
-            </tr>
-        {/each}
-    </tbody>
-</table>
+<div>
+    <input type="text" placeholder="Enter a URL..." bind:value={new_url}>
+    <button on:click={() => addSource(new_url)}>Add Source</button>
+</div>
+<!-- iterate over the sources in order of addition using the sourceId as key -->
+{#each Object.entries($sources).sort((a, b) => b[1].unix_time_added - a[1].unix_time_added) as pair (pair[0])}
+    <Source source={pair[1]} on:delete={() => deleteSource(pair[0])}
+            on:setEnabled={(event) => setEnabled(pair[0], event.detail)}></Source>
+{/each}
+</div>
 
 <style>
-    table {
-        width: 100%;
+    .sources-header {
+        /* center the header */
+        /* put the sources above the url entry */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        /* set a large flex gap */
+        /* make inline elements large */
     }
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(0, 0, 0, 0.05);
+    .sources-header .sources-title {
+        /* make the title large */
+        font-size: 50px;
+    }
+    .sources-header input[type=text] {
+        /* make the input box large */
+        font-size: 30px;
+        margin: 10px;
+    }
+    .sources-header button {
+        /* make the button large */
+        font-size: 30px;
     }
 </style>
 
