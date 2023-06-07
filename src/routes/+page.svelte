@@ -4,7 +4,16 @@
     import QA from './qa.svelte';
 </script>
 
-<QA />
-<hr>
-<br>
-<Sources />
+<div class="container">
+    <QA />
+    <Sources />
+</div>
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
