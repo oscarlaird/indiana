@@ -1,5 +1,5 @@
 import { onValue, ref } from "firebase/database";
-import { readable} from "svelte/store";
+import { readable, writable } from "svelte/store";
 import { db } from "./firebase.js";
 
 export const sources = readable({}, function start(set) {
@@ -20,3 +20,4 @@ export const sources = readable({}, function start(set) {
     }
 );
 
+export const selected_context_idx = writable(null);

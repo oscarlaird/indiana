@@ -6,6 +6,7 @@
 
 <div class="container">
     <QA />
+    <hr>
     <Sources />
 </div>
 
@@ -15,5 +16,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        max-width: 2000px;
+        margin: 100px auto;
+    }
+    hr {
+        width: 100%;
+        margin: 1rem 0;
     }
 </style>

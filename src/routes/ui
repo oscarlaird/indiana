@@ -1,0 +1,12 @@
+sourceCard (simple card giving url/title + summary + favicon + delete + status)
+contextCard -- The user can immediately see the context of what gpt quoted
+- article (inluding books and user uploaded content)
+  - shows the chunk with the relevant quote highlighted
+  - on click opens the article in an iframe
+- video
+  - simply embeds at the desired timestamp
+- social media (twitter or linked in)
+  - simply embeds the tweet etc.
+ - pdf (TODO)
+  - shows the page's text with the quote highlighted
+  - on click opens a pdf viewer with the page open at the relevant page

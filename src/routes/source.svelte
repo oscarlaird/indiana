@@ -3,41 +3,50 @@
     export let source;
     import { createEventDispatcher} from "svelte";
     const dispatch = createEventDispatcher();
+    import Trashcan from "./trashcan.svelte";
 </script>
 
 <div class="source">
-<h2>
     <!-- show the article's favicon -->
-    <img src={source.favicon} alt={source.title} width="32" height="32"/>
-    <a href={source.url}>{source.title || source.url}</a>
-</h2>
-<label>
-    <input type="checkbox" checked={source.enabled} on:click={e => dispatch('setEnabled', e.target.checked)}/>
-    {source.enabled ? 'Enabled' : 'Disabled'}
-</label>
-<label>
-    <button on:click={e => dispatch('delete', e)}>x</button>
-    Delete
-</label>
-{source.status}
+    <div class="trashcan-box">
+        <Trashcan on:click={() => dispatch("delete", source)} />
+    </div>
+
+    <a href={source.url} target="_blank" rel="noopener noreferrer">
+        <img src={source.favicon || "./favicon.png"} alt={source.title} on:error={e => {e.target.src="./favicon.png"}} />
+    </a>
+
+    <div class="title-box">
+        ({source.status})
+    <a href={source.url} target="_blank" rel="noopener noreferrer" >{source.title || source.url}</a>
+    </div>
 </div>
 
 <style>
     .source {
+        background: white;
         width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: 30px;
+        box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+    }
+    .source:hover {
+        scale: 1.1;
         border: 1px solid black;
-        padding: 1em;
     }
-    .source h2 {
-        margin: 0;
+    img {
+        width: 60px;
+        height: 60px;
+        flex: 0 0 60px;
+        margin: 0 20px 0 0;
+        cursor: pointer;
     }
-    .source label {
-        display: block;
+    img:hover{
+        scale: 1.2;
     }
-    .source label input {
-        margin-right: 1em;
-    }
-    .source label button {
-        margin-right: 1em;
+    .trashcan-box {
+        flex: 0 0 60px;
     }
 </style>

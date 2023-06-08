@@ -1,6 +1,6 @@
 import {multiply} from 'mathjs';
 import {get} from 'svelte/store'
-import {sources} from "./firebase.js";
+import {sources} from "./stores.js";
 
 // take a matrix m and a vector v
 // take the product Mv and return the argmax of the result
