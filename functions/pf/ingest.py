@@ -7,10 +7,12 @@
 
 from typing import List
 
-# import yt_dlp as youtube_dl
-# from youtube_transcript_api import YouTubeTranscriptApi
+import yt_dlp as youtube_dl
+from youtube_transcript_api import YouTubeTranscriptApi
 from newspaper import Article
 from datetime import datetime
+
+import logging
 
 
 class ParseError(Exception):
@@ -27,13 +29,13 @@ def get_type(url: str):
     elif any(site in url for site in ['twitter', 'facebook', 'linkedin', 'reddit']):
         return 'social'
     else:
-        return 'unknown'
+        return 'article'
 
 
 def parse_src(url: str):
     type = get_type(url)
     if type == 'youtube':
-        pass
+        return parse_youtube(url)
     elif type == 'article':
         return parse_article(url)
     else:
@@ -51,8 +53,8 @@ def parse_article(url):
     article.parse()
 
     metadata['title'] = article.title
-    metadata['published'] = None if not article.publish_date else datetime.strftime(article.publish_date,
-                                                                                    '%Y-%m-%d')  # format to YYYY-MM-DD
+    if article.publish_date:
+        metadata['published'] = datetime.strftime(article.publish_date, '%Y-%m-%d')  # format to YYYY-MM-DD
     metadata['fullcontent'] = article.text
     metadata['favicon'] = article.meta_favicon
     if not metadata['fullcontent']:
@@ -61,45 +63,36 @@ def parse_article(url):
     return metadata
 
 
-'''
-def ingest_youtube_video(src):
-    assert src.type == 'youtube', 'src must be a youtube video'
-    logging.info(f'Ingesting youtube video at {src.url}')
-    logging.debug(f'Fetching metadata for youtube video at {src.url}')
+def parse_youtube(url):
+    logging.info(f'Ingesting youtube video at {url}')
+    logging.debug(f'Fetching metadata for youtube video at {url}')
+
+    # we will build metadata
+    metadata = {'type': 'youtube'}
 
     # Fetch the video metadata using youtube_dl
     ydl_opts = {}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        video_info = ydl.extract_info(src.url, download=False,)
-        src.title = video_info.get('title')
-        src.date = datetime.strptime(video_info.get('upload_date'), '%Y%m%d')
+        video_info = ydl.extract_info(url, download=False,)
+        title = video_info.get('title')
+        date = video_info.get('upload_date')
+        if date:
+            date = datetime.strftime(datetime.strptime(date, '%Y%m%d'), '%Y-%m-%d')
+        metadata['title'] = title
+        metadata['published'] = date
 
     # Fetch the transcript of the video using YouTubeTranscriptApi
-    try:
-        video_id = src.url.split("v=")[1]
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    video_id = url.split("v=")[1]
+    transcript = YouTubeTranscriptApi.get_transcript(video_id)
 
-        # Chunk the transcript
-        text = '\n'.join(str(int(bit['start'])) + ' ' + bit['text'] for bit in transcript)
-        chunks = chunk(text)
+    # Chunk the transcript
+    text = '\n'.join(str(int(bit['start'])) + ' ' + bit['text'] for bit in transcript)
+    metadata['fullcontent'] = text
 
-        logging.info(f'\nEmbedding {len(chunks)} chunks with openai api')
-        vectors = vector_db.embed_texts(chunks)
-        metadatas = [{'src_id': src.id, 'content': chunk, 'entities': [], 'loc': -1} for chunk in chunks]
+    # Fetch the thumbnail
+    metadata['favicon'] = "./favicons/youtube.png"
 
-        logging.info(f'Adding {len(vectors)} vectors to pinecone')
-        vector_db.upsert_vectors(vectors, metadatas)
-
-        with Session() as session:
-            src.processed = True
-            session.merge(src)
-            session.commit()
-
-    except BaseException as e:
-        logging.error(f'Could not retrieve transcript for video at {src.url}')
-        raise e
-'''
-
+    return metadata
 
 # chunk the content into ~200 word chunks of 1000 chars
 # try to break on sentences

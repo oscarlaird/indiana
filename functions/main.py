@@ -56,7 +56,7 @@ def embed0content(event: db_fn.Event[Any]) -> None:
 def parse0url(event: db_fn.Event[Any]) -> None:
     ref = db.reference(event.reference)
     # log the ref
-    logging.error('bad ref ', repr(ref), 'ref parent ', repr(ref.parent))
+    logging.error('bad ref ', repr(ref.path), 'ref parent ', repr(ref.parent.path))
 
     ref.parent.child('status').set('parsing')
     try:

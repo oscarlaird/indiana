@@ -1,8 +1,10 @@
 <script>
     // import realtime database functions from firebase
-    import {push, ref, remove, set} from "firebase/database";
-    import {db, sources} from "./firebase.js";
+    import { push, ref, remove, set } from "firebase/database";
+    import { db } from "./firebase.js";
+    import { sources } from "./stores.js";
     import Source from "./source.svelte";
+
 
     let new_url;
 
@@ -19,6 +21,7 @@
                 "unix_time_added": unixTimestamp
             }).then(r => console.log('added source ' + url)).catch(e => console.log(e));
         }
+        new_url = "";
     }
 
     const deleteSource = async (srcId) => {
@@ -26,10 +29,10 @@
         remove(source_ref);
     }
 
-    async function setEnabled(srcId, value) {
-        const source_ref = ref(db, "sources/" + srcId + "/enabled")
-        set(source_ref, value);
-    }
+    // async function setEnabled(srcId, value) {
+        // const source_ref = ref(db, "sources/" + srcId + "/enabled")
+        // set(source_ref, value);
+    // }
 
     $: console.log('sources', $sources);
 
@@ -38,29 +41,27 @@
 <div class="sources-header">
 <div class="sources-title">Sources</div>
 <!-- create a button to add a new source specifying the url thru input -->
-<div>
+<form on:submit|preventDefault={() => addSource(new_url)}>
     <input type="text" placeholder="Enter a URL..." bind:value={new_url}>
-    <button on:click={() => addSource(new_url)}>Add Source</button>
+    <button type="submit">Add Source</button>
+</form>
 </div>
 <!-- iterate over the sources in order of addition using the sourceId as key -->
-{#each Object.entries($sources).sort((a, b) => b[1].unix_time_added - a[1].unix_time_added) as pair (pair[0])}
-    <Source source={pair[1]} on:delete={() => deleteSource(pair[0])}
-            on:setEnabled={(event) => setEnabled(pair[0], event.detail)}></Source>
-{/each}
+<div class="sources-list">
+    {#each Object.entries($sources).sort((a, b) => b[1].unix_time_added - a[1].unix_time_added) as pair (pair[0])}
+        <Source source={pair[1]} on:delete={() => deleteSource(pair[0])} />
+    {/each}
 </div>
 
 <style>
     .sources-header {
         /* center the header */
-        /* put the sources above the url entry */
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-        /* set a large flex gap */
-        /* make inline elements large */
+        justify-content: center;
+        /* add a gap between the header and the sources */
+        margin-bottom: 10px;
     }
     .sources-header .sources-title {
         /* make the title large */
@@ -75,6 +76,14 @@
         /* make the button large */
         font-size: 30px;
     }
-</style>
+    .sources-list {
+        width: 100%;
+        /* show the sources in a two column grid */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        /* add a gap between the sources */
+        gap: 20px;
 
-{JSON.stringify($sources)}
+
+    }
+</style>

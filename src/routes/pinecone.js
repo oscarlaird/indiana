@@ -1,6 +1,6 @@
 import {multiply} from 'mathjs';
 import {get} from 'svelte/store'
-import {sources} from "./firebase.js";
+import {sources} from "./stores.js";
 
 // take a matrix m and a vector v
 // take the product Mv and return the argmax of the result
@@ -47,23 +47,28 @@ export function build_prompt(contexts, query) {
     // contexts is an array of objects with the following keys
     // sourceId, sourceName, chunk, chunkId, chunkName, chunkType, chunkUrl, chunkText
     // query is a string
-    let prompt = 'You are a seasoned researcher. Answer the following question using the information below.' +
-        ' Only use the provided sources. Do not rely on your own opinions. Quote directly from the sources' +
-        ' as often as possible in order to answer the questions. When you quote be sure to make it clear whether ' +
-        ' you are quoting the article a person who was quoted in the article. Think about why each source is relevant.' +
-        ' Give your reply as a list of sentences in JSON format. Each sentence is an object wit the following keys:' +
-        ' "context_idx", "text", and "timestamp". The "context_idx" is the id of the chunk that provided the information' +
-        ' for the sentence. The "text" is the text of the sentence. The "timestamp" is optional and only for youtube videos.' +
-        ' The timestamp is the time in the video where the sentence was spoken. The timestamp is in seconds. ' +
+    let prompt = '' +
+        ' Use the provided sources to answer following graduate open-ended exam question. Use the sources to answer the question.' +
+        ' When you quote be sure to use quotation marks and make it clear whether you are quoting the article directly or a person who was quoted in the source. ' +
+        ' Think about why each source might be relevant and try to incorporate each one if it is relevant.' +
+        ' Quote liberally, but don\'t just regurgitate the source. You still have to use quotation marks and explain your own thinking and how the source answers the question. ' +
+        ' \n' +
+        ' Give your reply as a list of sentences in JSON format. Each sentence is an object with the following keys:' +
+        ' "context_idx", "text", "youtube", and (optionally) "timestamp". The "context_idx" is the id of the chunk that provided the information' +
+        ' for the sentence. The "text" is the text of the sentence. "youtube" is a boolean indicating whether the source is a youtube video. The "timestamp" MUST be included if the source is a youtube video.' +
+        ' For these videos you MUST refer to the transcript and provide the timestamp of the quote or info you used in the sentence. ' +
+        ' The "timestamp" is the number of seconds into the video where the sentence occurs. The first column of the transcript shows the timestamps. ' +
+        ' If the source is not a youtube video then the "timestamp" field should be omitted. ' +
         ' A chunk can be used zero times or multiple times. ' +
         ' For example: ' +
-        ' [{"context_idx": 3, "text": "The sky is blue."}, {"context_idx": 1, "text": "This is because of atmospheric refraction.", timestamp: 10}]' +
+        ' [{"context_idx": 3, "text": "The sky is blue.", "youtube": false}, {"context_idx": 1, "text": "This is because of atmospheric refraction.", "youtube": true, "timestamp": 10}]' +
         ' \n\n';
     prompt = prompt + 'Question: ' + query + '\n\n';
-    prompt = prompt + 'Sources:\n\n';
+    prompt = prompt + 'Your sources are provided below. For each source, the source\'s metadata is provided, followed by the content. \n\n';
     contexts.forEach((context, context_idx) => {
         prompt = prompt + `Url: ${context.source.url}\n`;
         prompt = prompt + `Title: ${context.source.title}\n`;
+        prompt = prompt + `Type: ${context.source.type}\n`;
         prompt = prompt + `context_idx: ${context_idx}\n`;
         prompt = prompt + context.text + '\n\n';
     });
