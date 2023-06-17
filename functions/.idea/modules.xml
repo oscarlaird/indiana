@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/functions.iml" filepath="$PROJECT_DIR$/.idea/functions.iml" />
+      <module fileurl="file://$USER_HOME$/grooms/simplex_assimilate/.idea/simplex_assimilate.iml" filepath="$USER_HOME$/grooms/simplex_assimilate/.idea/simplex_assimilate.iml" />
       <module fileurl="file://$USER_HOME$/sqlite_vdb/.idea/sqlite_vdb.iml" filepath="$USER_HOME$/sqlite_vdb/.idea/sqlite_vdb.iml" />
     </modules>
   </component>

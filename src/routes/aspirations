@@ -1,4 +1,4 @@
 animate the favicons of the sources which are being used being fed to the engine (or otherwise show the provided context)
 use the streamed reply to show gpt typing its response
-embed youtube videos
 scraping
+show cost per query and specify num search results to embed and num contexts to use
