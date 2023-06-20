@@ -7,8 +7,6 @@
     </content>
     <orderEntry type="jdk" jdkName="Poetry (functions)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="sqlite_vdb" />
-    <orderEntry type="module" module-name="simplex_assimilate" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

@@ -54,6 +54,7 @@ def embed0content(event: db_fn.Event[Any]) -> None:
 # when a new url is added to sources set the status to 'parsing'
 @db_fn.on_value_created(reference="/sources/{srcId}/url")
 def parse0url(event: db_fn.Event[Any]) -> None:
+    # visit the url and fill out the metadata
     ref = db.reference(event.reference)
     # log the ref
     logging.error('bad ref ', repr(ref.path), 'ref parent ', repr(ref.parent.path))
